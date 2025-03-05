@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Payment Link Generator</title>
+    <style>
+        body { font-family: Arial, sans-serif; text-align: center; margin: 20px; }
+        input, button { padding: 10px; margin: 10px; }
+        #payment_link { margin-top: 20px; font-weight: bold; color: blue; }
+    </style>
+</head>
+<body>
+    <h2>Enter CDK & Order Number</h2>
+    <input type="text" id="cdk" placeholder="Enter CDK">
+    <input type="text" id="order_number" placeholder="Enter Order Number">
+    <button id="generate_btn" onclick="generatePaymentLink()">Generate Link</button>
+    
+    <p id="payment_link"></p>
+
+    <script>
+        async function generatePaymentLink() {
+            let cdk = document.getElementById("cdk").value.trim();
+            let orderNumber = document.getElementById("order_number").value.trim();
+
+            if (!cdk || !orderNumber) {
+                alert("Please enter both CDK and Order Number!");
+                return;
+            }
+
+            try {
+                let response = await fetch("http://127.0.0.1:8000/generate_payment_link/", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/x-www-form-urlencoded" },
+                    body: new URLSearchParams({ order_number: orderNumber, cdk: cdk })
+                });
+
+                let data = await response.json();
+                if (response.ok) {
+                    let linkElement = document.getElementById("payment_link");
+                    linkElement.innerHTML = `<a href="${data.payment_link}" target="_blank">Click Here to Pay</a>`;
+                } else {
+                    document.getElementById("payment_link").innerText = `Error: ${data.detail}`;
+                }
+            } catch (error) {
+                document.getElementById("payment_link").innerText = "Error: Could not connect to the server.";
+            }
+        }
+    </script>
+</body>
+</html>
