@@ -1,23 +1,39 @@
 from selenium import webdriver
 from selenium.webdriver.common.by import By
+from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.common.keys import Keys
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
 import time
 
-driver = webdriver.Chrome()  # Ensure chromedriver.exe is present
-driver.get("http://127.0.0.1:8000")
+options = webdriver.ChromeOptions()
+options.add_argument("--headless")  # Run in headless mode
+options.add_argument("--no-sandbox")
+options.add_argument("--disable-dev-shm-usage")
 
-# Enter order number
-order_input = driver.find_element(By.ID, "order_number")
-order_input.send_keys("123456")
+service = Service("/path/to/chromedriver")  # Update with the correct path
+driver = webdriver.Chrome(service=service, options=options)
 
-# Enter CDK
-cdk_input = driver.find_element(By.ID, "cdk")
-cdk_input.send_keys("ABC123")
+try:
+    driver.get("https://payment-link-generator-frontend.onrender.com")
 
-# Click the Generate button
-generate_btn = driver.find_element(By.ID, "generate_btn")
-generate_btn.click()
+    # Wait for elements
+    order_input = WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.ID, "order_number")))
+    order_input.send_keys("123456")
 
-time.sleep(5)  # Wait for link generation
+    cdk_input = driver.find_element(By.ID, "cdk")
+    cdk_input.send_keys("ABC123")
 
-driver.quit()
+    generate_btn = driver.find_element(By.ID, "generate_btn")
+    generate_btn.click()
+
+    # Wait for response
+    WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.ID, "payment_link")))
+
+    print("Test Passed: Payment link generated successfully!")
+
+except Exception as e:
+    print(f"Test Failed: {e}")
+
+finally:
+    driver.quit()

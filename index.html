@@ -29,7 +29,7 @@
             }
 
             try {
-                let response = await fetch("http://127.0.0.1:8000/generate_payment_link/", {
+                let response = await fetch("https://payment-link-generator-4zd7.onrender.com/generate_payment_link/", {
                     method: "POST",
                     headers: { "Content-Type": "application/x-www-form-urlencoded" },
                     body: new URLSearchParams({ order_number: orderNumber, cdk: cdk })
